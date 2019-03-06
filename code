@@ -1,0 +1,85 @@
+#include <kipr/botball.h>
+//erik 2-7-19
+//2-21-19 added movement
+#define HAND 2
+#define ARM 0
+
+int main()
+{
+    printf("Hello World\n");
+    int redchannel = 0;
+    int yellowchannel = 1;
+    int seen=0;
+    camera_open_black();
+    create_connect();
+    while(!camera_update()) {
+        printf("No camera\n");
+        camera_close();
+        msleep(100);
+        camera_open_black();
+        msleep(100);
+    }
+    
+    wait_for_light(1);
+    shutdown_in(120);
+    
+    //Grabbing the ambulance
+    
+    enable_servos();
+	create_drive_direct(200, -200);
+    msleep(500);
+    create_drive_direct(0, 0);
+    set_servo_position(HAND, 1200);
+    set_servo_position(ARM, 1028);
+    set_servo_position(HAND, 1028);
+    msleep(1000);
+    create_drive_direct(-200, 200);
+    msleep(500);
+    create_drive_direct(0, 0);
+    
+    //End of grabbing the ambulance
+    
+    while(1) {
+        while(!seen) {
+            camera_update();
+            point2 redcenter = get_object_center(redchannel, 0);
+            point2 yellowcenter = get_object_center(yellowchannel, 0);
+            while(!camera_update()) {
+                camera_update();
+                msleep(10);
+            }
+            if(redcenter.x<1 || yellowcenter.x<1) {
+                create_drive_direct(50,-50);
+            } else if ((redcenter.x < yellowcenter.x+16 && redcenter.x > yellowcenter.x-16) && 
+                       (redcenter.y < yellowcenter.y+12 && redcenter.y > yellowcenter.y-12)) {
+                printf("FIRE!\n");
+                if (redcenter.x<75) {
+                    create_drive_direct(200,250);
+                    seen=1;
+                    set_servo_position(HAND, 1900);
+                    set_servo_position(ARM, 1900);
+                } else if (redcenter.x>85) {
+                    create_drive_direct(250,200);
+                    seen=1;
+                    set_servo_position(HAND, 1900);
+                    set_servo_position(ARM, 1900);
+                } else {
+                    create_drive_straight(200);
+                    seen=1;
+                    set_servo_position(HAND, 1900);
+                    set_servo_position(ARM, 1900);
+                }
+            } else {
+                printf("All clear return to class\n");
+                create_drive_direct(50,-50);
+            }
+            printf("%d\n", redcenter.x);
+            printf("%d\n", yellowcenter.x);
+            msleep(10);
+        }
+        seen=0;
+        msleep(100);
+    }
+
+    return 0;
+}
