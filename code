@@ -1,6 +1,7 @@
 #include <kipr/botball.h>
 //erik 2-7-19
 //2-21-19 added movement
+//These #define statements define where the servos are connected to
 #define HAND 2
 #define ARM 0
 
@@ -56,16 +57,19 @@ int main()
                 if (redcenter.x<75) {
                     create_drive_direct(200,250);
                     seen=1;
+		    //Fire is seen, dropping ambulance off at other building
                     set_servo_position(HAND, 1900);
                     set_servo_position(ARM, 1900);
                 } else if (redcenter.x>85) {
                     create_drive_direct(250,200);
                     seen=1;
+		    //Dropping ambulance
                     set_servo_position(HAND, 1900);
                     set_servo_position(ARM, 1900);
                 } else {
                     create_drive_straight(200);
                     seen=1;
+		    //Dropping ambulance
                     set_servo_position(HAND, 1900);
                     set_servo_position(ARM, 1900);
                 }
